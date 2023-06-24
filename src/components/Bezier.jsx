@@ -59,7 +59,7 @@ const Bezier = () => {
       p.draw = () => {
         p.background(backgroundImage);
         p.stroke("red");
-        p.strokeWeight(0);
+        p.strokeWeight(1);
 
         for (let i = 0; i < points.length - 1; i++) {
           const p0 = points[i];
