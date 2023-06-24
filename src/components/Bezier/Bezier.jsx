@@ -1,9 +1,11 @@
 import React, { useRef, useEffect } from "react";
 import p5 from "p5";
+import "./Bezier.scss";
 
 const Bezier = () => {
   const canvasRef = useRef(null);
   const curves = [];
+  console.log(curves);
   let currentCurve = null;
   let selectedPoint = null;
   let activeCurveIndex = -1;
@@ -86,6 +88,14 @@ const Bezier = () => {
           const { curveIndex, pointIndex } = selectedPoint;
           curves[curveIndex].points.splice(pointIndex, 1);
           selectedPoint = null;
+        }
+
+        if (p.keyIsDown(p.CONTROL)) {
+          if (p.keyIsDown(88)) {
+            curves.length = 0;
+            selectedPoint = null;
+            activeCurveIndex = -1;
+          }
         }
       };
 
@@ -173,7 +183,7 @@ const Bezier = () => {
     new p5(sketch, canvasRef.current);
   }, [curves]);
 
-  return <div ref={canvasRef}></div>;
+  return <div className="bezier" ref={canvasRef}></div>;
 };
 
 export default Bezier;
