@@ -6,14 +6,22 @@ const Bezier = () => {
 
   useEffect(() => {
     const sketch = (p) => {
+      let backgroundImage;
+
+      p.preload = () => {
+        backgroundImage = p.loadImage("/assets/road.jpg");
+      };
+
       p.setup = () => {
         const width = window.innerWidth;
         const height = window.innerHeight;
         p.createCanvas(width, height);
+        p.image(backgroundImage, 0, 0, width, height);
       };
 
       p.draw = () => {
-        p.background(220);
+        // Решта коду для малювання кривої Безьє
+        // p.background(255);
         p.stroke(0);
         p.strokeWeight(2);
 
