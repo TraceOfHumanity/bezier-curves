@@ -59,7 +59,7 @@ const Bezier = () => {
       p.draw = () => {
         p.background(backgroundImage);
         p.stroke("red");
-        p.strokeWeight(1);
+        p.strokeWeight(0);
 
         for (let i = 0; i < points.length - 1; i++) {
           const p0 = points[i];
@@ -68,6 +68,7 @@ const Bezier = () => {
         }
 
         p.stroke(0, 255, 0);
+        p.strokeWeight(2);
         p.noFill();
 
         for (const point of points) {
@@ -94,7 +95,7 @@ const Bezier = () => {
           p.beginShape();
           p.curveVertex(controlPoints[0], controlPoints[1]);
 
-          for (let i = 0; i < controlPoints.length - 2; i += 2) {
+          for (let i = 0; i < controlPoints.length - 1; i += 2) {
             p.curveVertex(
               controlPoints[i],
               controlPoints[i + 1],
