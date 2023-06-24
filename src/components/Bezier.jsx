@@ -30,12 +30,12 @@ const Bezier = () => {
           curves.push(currentCurve);
           activeCurveIndex = curves.length - 1;
         }
+
         if (p.keyIsDown(p.SHIFT) && currentCurve !== null) {
           // Додавання точок до поточної кривої Безьє при натисканні Shift
           const point = { x: p.mouseX, y: p.mouseY };
           currentCurve.points.push(point);
         } else {
-          // Вибір точки для перетягування або активації
           let isPointSelected = false;
           for (let i = 0; i < curves.length; i++) {
             const curve = curves[i];
@@ -60,6 +60,10 @@ const Bezier = () => {
             if (isPointSelected) {
               break;
             }
+          }
+          if (!isPointSelected) {
+            selectedPoint = null;
+            activeCurveIndex = -1;
           }
         }
       };
