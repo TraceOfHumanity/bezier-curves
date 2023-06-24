@@ -4,6 +4,7 @@ import p5 from "p5";
 const Bezier = () => {
   const canvasRef = useRef(null);
   const points = [];
+  const points2 = [];
   let selectedPoint = null;
 
   useEffect(() => {
@@ -25,6 +26,9 @@ const Bezier = () => {
         if (p.keyIsDown(p.SHIFT)) {
           const point = { x: p.mouseX, y: p.mouseY };
           points.push(point);
+        } else if (p.keyIsDown(p.CONTROL)) {
+          const point = { x: p.mouseX, y: p.mouseY };
+          points2.push(point);
         } else {
           for (let i = 0; i < points.length; i++) {
             const point = points[i];
@@ -67,11 +71,25 @@ const Bezier = () => {
           p.line(p0.x, p0.y, p1.x, p1.y);
         }
 
+        for (let i = 0; i < points2.length - 1; i++) {
+          const p0 = points2[i];
+          const p1 = points2[i + 1];
+          p.line(p0.x, p0.y, p1.x, p1.y);
+        }
+
         p.stroke(0, 255, 0);
         p.strokeWeight(2);
         p.noFill();
 
         for (const point of points) {
+          const size = 8;
+          const halfSize = size / 2;
+          const x = point.x - halfSize;
+          const y = point.y - halfSize;
+          p.rect(x, y, size, size);
+        }
+
+        for (const point of points2) {
           const size = 8;
           const halfSize = size / 2;
           const x = point.x - halfSize;
@@ -107,6 +125,37 @@ const Bezier = () => {
           p.curveVertex(
             controlPoints[controlPoints.length - 2],
             controlPoints[controlPoints.length - 1]
+          );
+          p.endShape();
+        }
+
+        if (points2.length >= 2) {
+          p.stroke(0, 0, 255);
+          p.strokeWeight(2);
+
+          p.noFill();
+
+          const controlPoints2 = [];
+          for (let i = 0; i < points2.length; i++) {
+            const point = points2[i];
+            controlPoints2.push(point.x, point.y);
+          }
+
+          p.beginShape();
+          p.curveVertex(controlPoints2[0], controlPoints2[1]);
+
+          for (let i = 0; i < controlPoints2.length - 1; i += 2) {
+            p.curveVertex(
+              controlPoints2[i],
+              controlPoints2[i + 1],
+              controlPoints2[i + 2],
+              controlPoints2[i + 3]
+            );
+          }
+
+          p.curveVertex(
+            controlPoints2[controlPoints2.length - 2],
+            controlPoints2[controlPoints2.length - 1]
           );
           p.endShape();
         }
