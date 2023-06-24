@@ -3,8 +3,9 @@ import p5 from "p5";
 
 const Bezier = () => {
   const canvasRef = useRef(null);
-  const points = {};
-  console.log(points);
+  const curves = [];
+  console.log(curves);
+  let currentCurve = null;
   let selectedPoint = null;
 
   useEffect(() => {
@@ -23,25 +24,34 @@ const Bezier = () => {
       };
 
       p.mousePressed = () => {
-        if (p.keyIsDown(p.SHIFT)) {
+        if (p.keyIsDown(p.CONTROL)) {
+          // Створення нової кривої Безьє при натисканні Ctrl
+          currentCurve = { points: [] };
+          curves.push(currentCurve);
+        }
+        if (p.keyIsDown(p.SHIFT) && currentCurve !== null) {
+          // Додавання точок до поточної кривої Безьє при натисканні Shift
           const point = { x: p.mouseX, y: p.mouseY };
-          const i = Object.keys(points).length;
-          points[i] = point;
+          currentCurve.points.push(point);
         } else {
-          for (let i in points) {
-            const point = points[i];
-            const size = 8;
-            const halfSize = size / 2;
-            const x = point.x - halfSize;
-            const y = point.y - halfSize;
-            if (
-              p.mouseX >= x &&
-              p.mouseX <= x + size &&
-              p.mouseY >= y &&
-              p.mouseY <= y + size
-            ) {
-              selectedPoint = i;
-              break;
+          // Вибір точки для перетягування
+          for (let i = 0; i < curves.length; i++) {
+            const curve = curves[i];
+            for (let j = 0; j < curve.points.length; j++) {
+              const point = curve.points[j];
+              const size = 8;
+              const halfSize = size / 2;
+              const x = point.x - halfSize;
+              const y = point.y - halfSize;
+              if (
+                p.mouseX >= x &&
+                p.mouseX <= x + size &&
+                p.mouseY >= y &&
+                p.mouseY <= y + size
+              ) {
+                selectedPoint = { curveIndex: i, pointIndex: j };
+                break;
+              }
             }
           }
         }
@@ -49,8 +59,9 @@ const Bezier = () => {
 
       p.mouseDragged = () => {
         if (selectedPoint !== null) {
-          points[selectedPoint].x = p.mouseX;
-          points[selectedPoint].y = p.mouseY;
+          const { curveIndex, pointIndex } = selectedPoint;
+          curves[curveIndex].points[pointIndex].x = p.mouseX;
+          curves[curveIndex].points[pointIndex].y = p.mouseY;
         }
       };
 
@@ -62,48 +73,58 @@ const Bezier = () => {
         p.background(backgroundImage);
         p.stroke("red");
         p.strokeWeight(1);
+        p.noFill();
 
-        for (let i in points) {
-          const point = points[i];
-          const size = 8;
-          const halfSize = size / 2;
-          const x = point.x - halfSize;
-          const y = point.y - halfSize;
-          p.rect(x, y, size, size);
+        for (let i = 0; i < curves.length; i++) {
+          const curve = curves[i];
+          for (let j = 0; j < curve.points.length; j++) {
+            const point = curve.points[j];
+            const size = 8;
+            const halfSize = size / 2;
+            const x = point.x - halfSize;
+            const y = point.y - halfSize;
+            p.rect(x, y, size, size);
+          }
         }
 
-        if (Object.keys(points).length >= 2) {
-          p.stroke(255, 0, 0);
-          p.stroke("blue");
-          p.strokeWeight(2);
+        for (let i = 0; i < curves.length; i++) {
+          const curve = curves[i];
+          if (curve.points.length >= 2) {
+            p.stroke(255, 0, 0);
+            p.stroke("blue");
+            p.strokeWeight(2);
+            p.noFill();
 
-          p.noFill();
+            const controlPoints = [];
+            for (let j = 0; j < curve.points.length; j++) {
+              const point = curve.points[j];
+              controlPoints.push(point.x, point.y);
+            }
 
-          const controlPoints = [];
-          for (let i in points) {
-            const point = points[i];
-            controlPoints.push(point.x, point.y);
+            p.beginShape();
+            p.curveVertex(controlPoints[0], controlPoints[1]);
+
+            for (let j = 0; j < controlPoints.length - 1; j += 2) {
+              p.curveVertex(
+                controlPoints[j],
+                controlPoints[j + 1],
+                controlPoints[j + 2],
+                controlPoints[j + 3]
+              );
+            }
+
+            p.curveVertex(
+              controlPoints[controlPoints.length - 2],
+              controlPoints[controlPoints.length - 1]
+            );
+            p.endShape();
           }
-
-          p.beginShape();
-          p.curveVertex(controlPoints[0], controlPoints[1]);
-
-          for (let i in points) {
-            const point = points[i];
-            p.curveVertex(point.x, point.y, point.x, point.y);
-          }
-
-          p.curveVertex(
-            controlPoints[controlPoints.length - 2],
-            controlPoints[controlPoints.length - 1]
-          );
-          p.endShape();
         }
       };
     };
 
     new p5(sketch, canvasRef.current);
-  }, [points]);
+  }, [curves]);
 
   return <div ref={canvasRef}></div>;
 };
