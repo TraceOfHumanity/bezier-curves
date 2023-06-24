@@ -3,7 +3,8 @@ import p5 from "p5";
 
 const Bezier = () => {
   const canvasRef = useRef(null);
-  const points = [];
+  const points = {};
+  console.log(points);
   let selectedPoint = null;
 
   useEffect(() => {
@@ -24,9 +25,10 @@ const Bezier = () => {
       p.mousePressed = () => {
         if (p.keyIsDown(p.SHIFT)) {
           const point = { x: p.mouseX, y: p.mouseY };
-          points.push(point);
+          const i = Object.keys(points).length;
+          points[i] = point;
         } else {
-          for (let i = 0; i < points.length; i++) {
+          for (let i in points) {
             const point = points[i];
             const size = 8;
             const halfSize = size / 2;
@@ -61,17 +63,8 @@ const Bezier = () => {
         p.stroke("red");
         p.strokeWeight(1);
 
-        for (let i = 0; i < points.length - 1; i++) {
-          const p0 = points[i];
-          const p1 = points[i + 1];
-          p.line(p0.x, p0.y, p1.x, p1.y);
-        }
-
-        p.stroke(0, 255, 0);
-        p.strokeWeight(2);
-        p.noFill();
-
-        for (const point of points) {
+        for (let i in points) {
+          const point = points[i];
           const size = 8;
           const halfSize = size / 2;
           const x = point.x - halfSize;
@@ -79,7 +72,7 @@ const Bezier = () => {
           p.rect(x, y, size, size);
         }
 
-        if (points.length >= 2) {
+        if (Object.keys(points).length >= 2) {
           p.stroke(255, 0, 0);
           p.stroke("blue");
           p.strokeWeight(2);
@@ -87,7 +80,7 @@ const Bezier = () => {
           p.noFill();
 
           const controlPoints = [];
-          for (let i = 0; i < points.length; i++) {
+          for (let i in points) {
             const point = points[i];
             controlPoints.push(point.x, point.y);
           }
@@ -95,13 +88,9 @@ const Bezier = () => {
           p.beginShape();
           p.curveVertex(controlPoints[0], controlPoints[1]);
 
-          for (let i = 0; i < controlPoints.length - 1; i += 2) {
-            p.curveVertex(
-              controlPoints[i],
-              controlPoints[i + 1],
-              controlPoints[i + 2],
-              controlPoints[i + 3]
-            );
+          for (let i in points) {
+            const point = points[i];
+            p.curveVertex(point.x, point.y, point.x, point.y);
           }
 
           p.curveVertex(
@@ -114,7 +103,7 @@ const Bezier = () => {
     };
 
     new p5(sketch, canvasRef.current);
-  }, []);
+  }, [points]);
 
   return <div ref={canvasRef}></div>;
 };
