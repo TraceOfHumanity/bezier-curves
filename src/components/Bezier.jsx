@@ -6,7 +6,7 @@ const Bezier = () => {
   const curves = [];
   let currentCurve = null;
   let selectedPoint = null;
-  const history = [];
+  let activeCurveIndex = -1;
 
   useEffect(() => {
     const sketch = (p) => {
@@ -28,14 +28,14 @@ const Bezier = () => {
           // Створення нової кривої Безьє при натисканні Ctrl
           currentCurve = { points: [] };
           curves.push(currentCurve);
+          activeCurveIndex = curves.length - 1;
         }
         if (p.keyIsDown(p.SHIFT) && currentCurve !== null) {
           // Додавання точок до поточної кривої Безьє при натисканні Shift
           const point = { x: p.mouseX, y: p.mouseY };
           currentCurve.points.push(point);
-          history.push({ curveIndex: curves.length - 1, point });
         } else {
-          // Вибір точки для перетягування або активування
+          // Вибір точки для перетягування або активації
           let isPointSelected = false;
           for (let i = 0; i < curves.length; i++) {
             const curve = curves[i];
@@ -53,6 +53,7 @@ const Bezier = () => {
               ) {
                 selectedPoint = { curveIndex: i, pointIndex: j };
                 isPointSelected = true;
+                activeCurveIndex = i;
                 break;
               }
             }
@@ -103,9 +104,14 @@ const Bezier = () => {
               i === selectedPoint.curveIndex &&
               j === selectedPoint.pointIndex
             ) {
-              p.stroke("green"); // Зелений колір для активної точки
+              p.stroke("yellow"); // Зелений колір для активної точки
               p.strokeWeight(4);
-            } else {
+            }
+            // else if (i === activeCurveIndex) {
+            //   p.stroke("brown"); // Коричневий колір для активної кривої
+            //   p.strokeWeight(2);
+            // }
+            else {
               p.stroke("red");
               p.strokeWeight(2);
             }
@@ -116,15 +122,26 @@ const Bezier = () => {
         for (let i = 0; i < curves.length; i++) {
           const curve = curves[i];
           if (curve.points.length >= 2) {
-            p.stroke(255, 0, 0);
             p.stroke("blue");
             p.strokeWeight(3);
-            // p.noFill();
-
             const controlPoints = [];
             for (let j = 0; j < curve.points.length; j++) {
               const point = curve.points[j];
               controlPoints.push(point.x, point.y);
+              if (
+                selectedPoint !== null &&
+                i === selectedPoint.curveIndex &&
+                j === selectedPoint.pointIndex
+              ) {
+                // p.stroke("blue"); // Зелений колір для активної точки
+                // p.strokeWeight(4);
+              } else if (i === activeCurveIndex) {
+                p.stroke("brown"); // Коричневий колір для активної кривої
+                p.strokeWeight(2);
+              } else {
+                p.stroke("blue");
+                p.strokeWeight(2);
+              }
             }
 
             p.beginShape();
