@@ -41,10 +41,14 @@ const Bezier = () => {
         }
 
         p.stroke(0, 255, 0);
-        p.fill(0, 255, 0);
+        p.noFill();
 
         for (const point of points) {
-          p.ellipse(point.x, point.y, 8, 8);
+          const size = 8;
+          const halfSize = size / 2;
+          const x = point.x - halfSize;
+          const y = point.y - halfSize;
+          p.rect(x, y, size, size);
         }
 
         if (points.length >= 4) {
