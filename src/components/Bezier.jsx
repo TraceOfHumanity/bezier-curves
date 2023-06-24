@@ -4,9 +4,9 @@ import p5 from "p5";
 const Bezier = () => {
   const canvasRef = useRef(null);
   const curves = [];
-  console.log(curves);
   let currentCurve = null;
   let selectedPoint = null;
+  const history = [];
 
   useEffect(() => {
     const sketch = (p) => {
@@ -33,8 +33,10 @@ const Bezier = () => {
           // Додавання точок до поточної кривої Безьє при натисканні Shift
           const point = { x: p.mouseX, y: p.mouseY };
           currentCurve.points.push(point);
+          history.push({ curveIndex: curves.length - 1, point });
         } else {
-          // Вибір точки для перетягування
+          // Вибір точки для перетягування або активування
+          let isPointSelected = false;
           for (let i = 0; i < curves.length; i++) {
             const curve = curves[i];
             for (let j = 0; j < curve.points.length; j++) {
@@ -50,8 +52,12 @@ const Bezier = () => {
                 p.mouseY <= y + size
               ) {
                 selectedPoint = { curveIndex: i, pointIndex: j };
+                isPointSelected = true;
                 break;
               }
+            }
+            if (isPointSelected) {
+              break;
             }
           }
         }
@@ -69,20 +75,40 @@ const Bezier = () => {
         selectedPoint = null;
       };
 
+      p.keyPressed = () => {
+        if (p.keyIsDown(p.DELETE) && selectedPoint !== null) {
+          // Видалення точки при натисканні клавіші Delete
+          const { curveIndex, pointIndex } = selectedPoint;
+          curves[curveIndex].points.splice(pointIndex, 1);
+          selectedPoint = null;
+        }
+      };
+
       p.draw = () => {
         p.background(backgroundImage);
         p.stroke("red");
-        p.strokeWeight(1);
+        p.strokeWeight(2);
         p.noFill();
 
         for (let i = 0; i < curves.length; i++) {
           const curve = curves[i];
           for (let j = 0; j < curve.points.length; j++) {
             const point = curve.points[j];
-            const size = 8;
+            const size = 10;
             const halfSize = size / 2;
             const x = point.x - halfSize;
             const y = point.y - halfSize;
+            if (
+              selectedPoint !== null &&
+              i === selectedPoint.curveIndex &&
+              j === selectedPoint.pointIndex
+            ) {
+              p.stroke("green"); // Зелений колір для активної точки
+              p.strokeWeight(4);
+            } else {
+              p.stroke("red");
+              p.strokeWeight(2);
+            }
             p.rect(x, y, size, size);
           }
         }
@@ -92,8 +118,8 @@ const Bezier = () => {
           if (curve.points.length >= 2) {
             p.stroke(255, 0, 0);
             p.stroke("blue");
-            p.strokeWeight(2);
-            p.noFill();
+            p.strokeWeight(3);
+            // p.noFill();
 
             const controlPoints = [];
             for (let j = 0; j < curve.points.length; j++) {
