@@ -3,6 +3,7 @@ import p5 from "p5";
 
 const Bezier = () => {
   const canvasRef = useRef(null);
+  const points = [];
 
   useEffect(() => {
     const sketch = (p) => {
@@ -19,18 +20,44 @@ const Bezier = () => {
         p.image(backgroundImage, 0, 0, width, height);
       };
 
+      p.mousePressed = () => {
+        if (p.keyIsDown(p.SHIFT)) {
+          const point = { x: p.mouseX, y: p.mouseY };
+          points.push(point);
+        }
+      };
+
       p.draw = () => {
-        // Решта коду для малювання кривої Безьє
-        // p.background(255);
-        p.stroke(0);
+        // p.background(0);
+        p.stroke("red");
         p.strokeWeight(2);
 
-        const p0 = { x: 0.25 * p.width, y: 0.5 * p.height };
-        const p1 = { x: 0.5 * p.width, y: 0.25 * p.height };
-        const p2 = { x: 0.75 * p.width, y: 0.75 * p.height };
-        const p3 = { x: p.width, y: 0.5 * p.height };
+        if (points.length > 1) {
+          for (let i = 0; i < points.length - 1; i++) {
+            const p0 = points[i];
+            const p1 = points[i + 1];
+            p.line(p0.x, p0.y, p1.x, p1.y);
+          }
+        }
 
-        p.bezier(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+        p.stroke(0, 255, 0);
+        p.fill(0, 255, 0);
+
+        for (const point of points) {
+          p.ellipse(point.x, point.y, 8, 8);
+        }
+
+        if (points.length >= 4) {
+          p.stroke(255, 0, 0);
+          p.noFill();
+
+          const p0 = points[0];
+          const p1 = points[1];
+          const p2 = points[2];
+          const p3 = points[3];
+
+          p.bezier(p0.x, p0.y, p1.x, p1.y, p2.x, p2.y, p3.x, p3.y);
+        }
       };
     };
 
