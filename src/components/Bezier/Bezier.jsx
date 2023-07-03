@@ -23,6 +23,7 @@ const Bezier = () => {
         const height = window.innerHeight;
         p.createCanvas(width, height);
         p.image(backgroundImage, 0, 0, width, height);
+        p.curveTightness(0.95);
       };
 
       p.mousePressed = () => {
@@ -150,7 +151,7 @@ const Bezier = () => {
                 // p.stroke("blue"); // Зелений колір для активної точки
                 // p.strokeWeight(4);
               } else if (i === activeCurveIndex) {
-                p.stroke("brown"); // Коричневий колір для активної кривої
+                p.stroke("black"); // Коричневий колір для активної кривої
                 p.strokeWeight(2);
               } else {
                 p.stroke("blue");
